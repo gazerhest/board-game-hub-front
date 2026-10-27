@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoardGame Hub / client застосунок</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-container">
+            <h1>BoardGame Hub Client</h1>
+            <div id="cors-status" class="status-badge status-checking">Перевірка зв'язку з API...</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="alert-box" class="alert-box hidden"></div>
+
+        <div class="dashboard-grid">
+            <section class="catalog-section">
+                <div class="section-top">
+                    <h2>Каталог ігор</h2>
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Пошук за назвою чи описом...">
+                        <button id="search-btn" class="btn btn-secondary">Знайти</button>
+                    </div>
+                </div>
+
+                <div id="games-container" class="games-grid">
+                    <p class="loading-text">Завантаження каталогу...</p>
+                </div>
+            </section>
+
+            <aside class="form-section">
+                <h2>Додати нову гру</h2>
+                <p class="form-subtext">Демонстрація валідації та POST-запиту</p>
+
+                <form id="add-game-form">
+                    <div class="form-group">
+                        <label for="title">Назва гри *</label>
+                        <input type="text" id="title" required placeholder="Наприклад: Каркасон">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Опис гри *</label>
+                        <textarea id="description" rows="3" required placeholder="Короткий опис правил..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="price">Ціна (грн) *</label>
+                            <input type="number" id="price" step="0.01" required placeholder="1200.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="play_time">Час партії (хв) *</label>
+                            <input type="number" id="play_time" required placeholder="45">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="min_players">Мін. гравців *</label>
+                            <input type="number" id="min_players" value="2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="max_players">Макс. гравців *</label>
+                            <input type="number" id="max_players" value="5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="min_age">Мін. вік *</label>
+                            <input type="number" id="min_age" value="8" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="release_year">Рік випуску *</label>
+                            <input type="number" id="release_year" value="2024" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category_id">ID Категорії *</label>
+                        <input type="number" id="category_id" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="publisher_id">ID Видавництва *</label>
+                        <input type="number" id="publisher_id" value="1" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Створити гру</button>
+                </form>
+            </aside>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
