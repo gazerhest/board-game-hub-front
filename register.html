@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація / BoardGame Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="brand">BoardGame Hub</a>
+            <nav id="navbar-auth"></nav>
+        </div>
+    </header>
+
+    <main class="container auth-container">
+        <div class="auth-card">
+            <h2>Реєстрація</h2>
+            <p class="auth-subtext">Створіть свій профіль у спільноті</p>
+
+            <div id="alert-box" class="alert-box hidden"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="username">Ім'я користувача (username) *</label>
+                    <input type="text" id="username" required placeholder="user123">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">Ім'я</label>
+                        <input type="text" id="first_name" placeholder="Олександр">
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Прізвище</label>
+                        <input type="text" id="last_name" placeholder="Петренко">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Електронна пошта (email) *</label>
+                    <input type="email" id="email" required placeholder="name@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль (мін. 8 символів) *</label>
+                    <input type="password" id="password" required minlength="8" placeholder="••••••••">
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirmation">Підтвердження пароля *</label>
+                    <input type="password" id="password_confirmation" required minlength="8" placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Зареєструватися</button>
+            </form>
+
+            <p class="auth-footer-text">
+                Вже маєте акаунт? <a href="login.html">Увійти</a>
+            </p>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script>
+        if (isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        const registerForm = document.getElementById('register-form');
+        const alertBox = document.getElementById('alert-box');
+
+        function showAlert(msg, isSuccess = false) {
+            alertBox.textContent = msg;
+            alertBox.className = `alert-box ${isSuccess ? 'alert-success' : 'alert-error'}`;
+            alertBox.classList.remove('hidden');
+        }
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                username: document.getElementById('username').value.trim(),
+                first_name: document.getElementById('first_name').value.trim(),
+                last_name: document.getElementById('last_name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                password_confirmation: document.getElementById('password_confirmation').value
+            };
+
+            if (payload.password !== payload.password_confirmation) {
+                showAlert('Пароль і підтвердження пароля не збігаються!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.status === 201) {
+                    showAlert('Реєстрація успішна! Перенаправляємо на вхід...', true);
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    let errorMsg = data.message || 'Помилка валідації:';
+                    if (data.errors) {
+                        const errs = Object.entries(data.errors).map(([k, v]) => `${k}: ${v}`).join('; ');
+                        errorMsg += ` (${errs})`;
+                    }
+                    showAlert(errorMsg);
+                }
+            } catch (err) {
+                showAlert('Мережева помилка при реєстрації.');
+            }
+        });
+    </script>
+</body>
+</html>

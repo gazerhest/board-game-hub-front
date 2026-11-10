@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Додати гру / Панель керування</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="brand">BoardGame Hub</a>
+            <nav id="navbar-auth"></nav>
+        </div>
+    </header>
+
+    <main class="container admin-container">
+        <script src="auth.js"></script>
+        <script>
+            if (!isAuthenticated()) {
+                window.location.href = `login.html?next=${encodeURIComponent('admin.html')}`;
+            }
+        </script>
+
+        <div class="form-section admin-form-card">
+            <h2>Додати нову настільну гру</h2>
+
+            <div id="alert-box" class="alert-box hidden"></div>
+
+            <form id="add-game-form">
+                <div class="form-group">
+                    <label for="title">Назва гри *</label>
+                    <input type="text" id="title" required placeholder="Наприклад: Колонізатори Catan">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Опис гри *</label>
+                    <textarea id="description" rows="3" required placeholder="Правила, механіки, сетинг..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Ціна (грн) *</label>
+                        <input type="number" id="price" step="0.01" required placeholder="1450.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="play_time">Час партії (хв) *</label>
+                        <input type="number" id="play_time" required placeholder="75">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="min_players">Мін. гравців *</label>
+                        <input type="number" id="min_players" value="3" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="max_players">Макс. гравців *</label>
+                        <input type="number" id="max_players" value="4" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="min_age">Мін. вік *</label>
+                        <input type="number" id="min_age" value="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="release_year">Рік випуску *</label>
+                        <input type="number" id="release_year" value="2024" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category_id">ID Категорії *</label>
+                    <input type="number" id="category_id" value="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="publisher_id">ID Видавництва *</label>
+                    <input type="number" id="publisher_id" value="1" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Зберегти гру</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const addGameForm = document.getElementById('add-game-form');
+        const alertBox = document.getElementById('alert-box');
+
+        function showAlert(msg, isSuccess = false) {
+            alertBox.textContent = msg;
+            alertBox.className = `alert-box ${isSuccess ? 'alert-success' : 'alert-error'}`;
+            alertBox.classList.remove('hidden');
+            if (isSuccess) setTimeout(() => alertBox.classList.add('hidden'), 5000);
+        }
+
+        addGameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                title: document.getElementById('title').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                price: parseFloat(document.getElementById('price').value),
+                play_time_minutes: parseInt(document.getElementById('play_time').value),
+                min_players: parseInt(document.getElementById('min_players').value),
+                max_players: parseInt(document.getElementById('max_players').value),
+                min_age: parseInt(document.getElementById('min_age').value),
+                release_year: parseInt(document.getElementById('release_year').value),
+                category_id: parseInt(document.getElementById('category_id').value),
+                publisher_id: parseInt(document.getElementById('publisher_id').value),
+            };
+
+            try {
+                const response = await authFetch(`${API_BASE}/games/`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.status === 201) {
+                    showAlert(`Гру «${data.title}» успішно додано до каталогу!`, true);
+                    addGameForm.reset();
+                } else {
+                    let msg = data.message || 'Помилка збереження:';
+                    if (data.errors) {
+                        msg += ' ' + JSON.stringify(data.errors);
+                    }
+                    showAlert(msg, false);
+                }
+            } catch (err) {
+                showAlert('Мережева помилка під час збереження.');
+            }
+        });
+    </script>
+</body>
+</html>
